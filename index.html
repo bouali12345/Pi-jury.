@@ -1,510 +1,109 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Pi Jury Ultimate - نظام الحوكمة</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Jury Ultimate</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0d0d14;
-            --card-bg: #171722;
-            --input-bg: #11111b;
-            --primary: #7c3aed;
-            --primary-hover: #6d28d9;
-            --text-main: #ffffff;
-            --text-muted: #aaa;
-            --border-color: #2b2b42;
-            --success: #10b981;
-            --error: #ef4444;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px;
-            direction: rtl;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: auto;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-
-        button {
-            border: none;
-            background: var(--primary);
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.2s;
-        }
-
-        button:hover:not(:disabled) {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        input, textarea {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            margin-top: 12px;
-            font-size: 15px;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .case {
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .case-desc {
-            color: var(--text-muted);
-            margin: 10px 0 20px 0;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* نظام التصويت والنتائج */
-        .option-container {
-            margin-top: 12px;
-            position: relative;
-            cursor: pointer;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: border-color 0.2s;
-        }
-
-        .option-container:hover:not(.voted) {
-            border-color: var(--primary);
-        }
-
-        .option-container.selected {
-            border-color: var(--success);
-            border-width: 2px;
-        }
-
-        .progress-bar {
-            position: absolute;
-            top: 0;
-            right: 0;
-            height: 100%;
-            background-color: rgba(124, 58, 237, 0.2);
-            width: 0%;
-            transition: width 0.6s cubic-bezier(0.1, 0, 0.3, 1);
-            z-index: 1;
-        }
-
-        .option-content {
-            position: relative;
-            z-index: 2;
-            padding: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-tag {
-            padding: 8px 15px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            background: #1e1e2e;
-            display: inline-block;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .stat {
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat h3 { color: var(--primary); font-size: 22px; }
-
-        .nav { display: flex; gap: 10px; margin-top: 20px; }
-        .nav button { flex: 1; }
-
-        .hidden { display: none; }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2b2b42;
-            padding: 15px 25px;
-            border-radius: 12px;
-            border: 1px solid var(--primary);
-            display: none;
-            z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        .animate-fade { animation: fadeIn 0.4s ease; }
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: white; transition: all 0.3s ease; }
+        .pi-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-btn { background: linear-gradient(90deg, #9333ea, #4f46e5); }
     </style>
 </head>
+<body class="min-h-screen p-4 flex flex-col text-right">
 
-<body>
+    <div class="flex justify-between items-center mb-6" id="header">
+        <button onclick="toggleLanguage()" class="bg-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-purple-500">
+            🌐 <span id="lang-btn-text">English</span>
+        </button>
+        <h1 id="app-title" class="text-xl font-bold text-purple-400 text-left">⚖️ Pi Jury Ultimate</h1>
+    </div>
 
-<div class="container">
-    <div class="card">
-        <div class="title">⚖️ Pi Jury Ultimate</div>
-        <div class="subtitle">محكمة Pi اللامركزية - صوتك يبني المستقبل</div>
+    <div class="pi-card rounded-2xl p-6 mb-6 text-center shadow-xl">
+        <p id="welcome-msg" class="text-gray-400 mb-2 italic text-center">مرحباً بك في المحكمة اللامركزية</p>
+        <div class="bg-purple-900/30 py-2 px-4 rounded-full inline-block mb-2 text-center">
+            <h2 id="user-name" class="text-xl font-bold text-green-400">@Guest</h2>
+        </div>
+        <p id="user-uid" class="text-[10px] text-gray-500 break-all mt-2 opacity-50">UID: --</p>
+    </div>
 
-        <div id="status" class="status-tag">جاري الاتصال بـ Pi Network...</div>
-
-        <button id="signinBtn">الدخول عبر محفظة Pi</button>
-
-        <div id="userBox" class="hidden animate-fade">
-            <div style="background: var(--input-bg); padding: 15px; border-radius: 12px;">
-                <h3 id="username" style="color: var(--success);"></h3>
-                <p id="uid" style="font-size: 11px; color: var(--text-muted);"></p>
-            </div>
-            
-            <div class="stats">
-                <div class="stat">
-                    <h3 id="voteCount">0</h3>
-                    <p style="font-size: 12px;">أصواتك</p>
-                </div>
-                <div class="stat">
-                    <h3 id="caseCount">0</h3>
-                    <p style="font-size: 12px;">قضاياك</p>
-                </div>
-            </div>
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="pi-card rounded-2xl p-4 text-center border-b-4 border-purple-600">
+            <span id="stat-votes-val" class="block text-3xl font-bold text-white text-center">0</span>
+            <span id="stat-votes-lbl" class="text-xs uppercase tracking-wider text-purple-300">أصواتك</span>
+        </div>
+        <div class="pi-card rounded-2xl p-4 text-center border-b-4 border-indigo-600">
+            <span id="stat-cases-val" class="block text-3xl font-bold text-white text-center">0</span>
+            <span id="stat-cases-lbl" class="text-xs uppercase tracking-wider text-indigo-300 text-center">قضاياك</span>
         </div>
     </div>
 
-    <div class="nav hidden" id="nav">
-        <button onclick="showPage('casesPage')">تصفح القضايا</button>
-        <button onclick="showPage('createPage')" style="background: rgba(124, 58, 237, 0.2); color: var(--primary);">نشر قضية (0.1 Pi)</button>
+    <div class="mt-auto mb-10">
+        <button onclick="createNewCase()" class="gradient-btn w-full p-5 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+            <span id="btn-new-case">➕ إضافة قضية جديدة</span>
+        </button>
+        <p id="footer-note" class="text-center text-[10px] text-gray-500 mt-4">Powered by Pi Network SDK v.2.0</p>
     </div>
 
-    <div id="casesPage" class="card hidden animate-fade">
-        <h2 style="margin-bottom: 15px;">القضايا المجتمعية</h2>
-        <div id="casesContainer"></div>
-    </div>
+    <script>
+        const Pi = window.Pi;
+        let currentLang = 'ar';
 
-    <div id="createPage" class="card hidden animate-fade">
-        <h2>نشر قضية جديدة</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سيتم خصم 0.1 Pi كرسوم حوكمة.</p>
-        
-        <input id="caseTitle" placeholder="عنوان القضية...">
-        <textarea id="caseDesc" placeholder="اشرح تفاصيل القضية هنا..."></textarea>
-        <input id="option1" placeholder="الخيار الأول (مؤيد)">
-        <input id="option2" placeholder="الخيار الثاني (معارض)">
-        
-        <button id="payBtn" onclick="handlePaymentAndCreate()">دفع الرسوم ونشر القضية</button>
-        <button onclick="showPage('casesPage')" style="background:transparent; color: var(--text-muted);">إلغاء</button>
-    </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-    // --- الإعدادات ---
-    let currentUser = null;
-    const CASE_FEE = 0.1; // تكلفة النشر بالباي
-
-    // التخزين المحلي (للتجربة)
-    let cases = JSON.parse(localStorage.getItem("pi_jury_data") || "[]");
-    let userVotes = JSON.parse(localStorage.getItem("pi_jury_votes") || "{}");
-
-    // --- تهيئة Pi SDK ---
-    window.addEventListener("load", async () => {
-        try {
-            await Pi.init({ version: "2.0", sandbox: true });
-            updateStatus("جاهز للعمل", "success");
-            autoLogin();
-        } catch(err) {
-            updateStatus("فشل الاتصال بـ SDK", "error");
-        }
-    });
-
-    async function autoLogin() {
-        try {
-            const auth = await Pi.authenticate(["username"], onIncompletePayment);
-            currentUser = auth.user;
-            onLoginSuccess();
-        } catch(e) {}
-    }
-
-    document.getElementById("signinBtn").onclick = async () => {
-        try {
-            updateStatus("جاري المصادقة...");
-            const auth = await Pi.authenticate(["username"], onIncompletePayment);
-            currentUser = auth.user;
-            onLoginSuccess();
-        } catch(e) {
-            updateStatus("فشل تسجيل الدخول", "error");
-        }
-    };
-
-    function onLoginSuccess() {
-        document.getElementById("signinBtn").classList.add("hidden");
-        document.getElementById("userBox").classList.remove("hidden");
-        document.getElementById("nav").classList.remove("hidden");
-        document.getElementById("username").innerText = `@${currentUser.username}`;
-        document.getElementById("uid").innerText = `UID: ${currentUser.uid}`;
-        updateStatus("متصل كعضو محلف", "success");
-        showPage('casesPage');
-        updateUIState();
-    }
-
-    // --- نظام الدفع وإنشاء القضية ---
-    async function handlePaymentAndCreate() {
-        const title = document.getElementById("caseTitle").value.trim();
-        const desc = document.getElementById("caseDesc").value.trim();
-        const op1 = document.getElementById("option1").value.trim();
-        const op2 = document.getElementById("option2").value.trim();
-
-        if(!title || !op1 || !op2) return showToast("⚠️ أكمل البيانات أولاً");
-
-        const btn = document.getElementById("payBtn");
-        btn.disabled = true;
-        btn.innerText = "جاري معالجة الدفع...";
-
-        try {
-            // طلب الدفع من محفظة Pi
-            const payment = await Pi.createPayment({
-                amount: CASE_FEE,
-                memo: `نشر قضية: ${title}`,
-                metadata: { type: "create_case" },
-            }, {
-                onReadyForServerApproval: (id) => console.log("Approval needed:", id),
-                onReadyForServerCompletion: (id, tx) => console.log("Complete:", tx),
-                onCancel: () => { 
-                    showToast("❌ تم إلغاء الدفع");
-                    resetPayBtn();
-                },
-                onError: (err) => {
-                    showToast("⚠️ خطأ في الدفع");
-                    resetPayBtn();
-                }
-            });
-
-            // ملاحظة: في الـ Sandbox يتم تخطي التأكيد البرمجي أحياناً
-            if(payment) {
-                finalizeCreateCase(title, desc, op1, op2);
+        const translations = {
+            ar: {
+                title: "⚖️ Pi Jury Ultimate",
+                welcome: "مرحباً بك في المحكمة اللامركزية",
+                votes_lbl: "أصواتك",
+                cases_lbl: "قضاياك",
+                new_case: "➕ إضافة قضية جديدة",
+                lang_btn: "English",
+                payment_msg: "سيطلب منك التطبيق دفع 0.1 Pi لنشر القضية قريباً."
+            },
+            en: {
+                title: "⚖️ Pi Jury Ultimate",
+                welcome: "Welcome to Decentralized Court",
+                votes_lbl: "Your Votes",
+                cases_lbl: "Your Cases",
+                new_case: "➕ Create New Case",
+                lang_btn: "العربية",
+                payment_msg: "The app will require 0.1 Pi to publish a case soon."
             }
-        } catch(err) {
-            showToast("🚫 حدث خطأ غير متوقع");
-            resetPayBtn();
-        }
-    }
-
-    function finalizeCreateCase(title, desc, op1, op2) {
-        const newCase = {
-            id: Date.now(),
-            title,
-            desc,
-            options: [op1, op2],
-            votes: [0, 0],
-            creator: currentUser.username,
-            timestamp: new Date().toLocaleDateString()
         };
 
-        cases.unshift(newCase);
-        saveData();
-        showToast("✅ تم نشر القضية بنجاح!");
-        resetPayBtn();
-        showPage('casesPage');
-        
-        // تنظيف الحقول
-        document.getElementById("caseTitle").value = "";
-        document.getElementById("caseDesc").value = "";
-    }
-
-    function resetPayBtn() {
-        const btn = document.getElementById("payBtn");
-        btn.disabled = false;
-        btn.innerText = `دفع الرسوم ونشر القضية (${CASE_FEE} Pi)`;
-    }
-
-    // --- نظام التصويت ---
-    function renderCases() {
-        const container = document.getElementById("casesContainer");
-        container.innerHTML = "";
-
-        if(cases.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color:gray;'>لا توجد قضايا حالية.</p>";
-            return;
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            const body = document.body;
+            body.className = currentLang === 'ar' ? "min-h-screen p-4 flex flex-col text-right" : "min-h-screen p-4 flex flex-col text-left";
+            updateUI();
         }
 
-        cases.forEach(c => {
-            const voteKey = `${currentUser.uid}_${c.id}`;
-            const hasVoted = userVotes[voteKey] !== undefined;
-            const total = c.votes[0] + c.votes[1];
-            const p1 = total === 0 ? 0 : Math.round((c.votes[0]/total)*100);
-            const p2 = total === 0 ? 0 : Math.round((c.votes[1]/total)*100);
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('app-title').innerText = t.title;
+            document.getElementById('welcome-msg').innerText = t.welcome;
+            document.getElementById('stat-votes-lbl').innerText = t.votes_lbl;
+            document.getElementById('stat-cases-lbl').innerText = t.cases_lbl;
+            document.getElementById('btn-new-case').innerText = t.new_case;
+            document.getElementById('lang-btn-text').innerText = t.lang_btn;
+        }
 
-            const div = document.createElement("div");
-            div.className = "case animate-fade";
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="badge">جارية</span>
-                    <span style="font-size:11px; color:gray;">${c.timestamp}</span>
-                </div>
-                <h3 style="margin-bottom:8px;">${escapeHTML(c.title)}</h3>
-                <p class="case-desc">${escapeHTML(c.desc)}</p>
-
-                <div class="option-container ${hasVoted && userVotes[voteKey] === 0 ? 'selected' : ''}" 
-                     onclick="submitVote(${c.id}, 0, ${hasVoted})">
-                    <div class="progress-bar" style="width: ${hasVoted ? p1 : 0}%"></div>
-                    <div class="option-content">
-                        <span>${escapeHTML(c.options[0])}</span>
-                        ${hasVoted ? `<span>${p1}% (${c.votes[0]})</span>` : ''}
-                    </div>
-                </div>
-
-                <div class="option-container ${hasVoted && userVotes[voteKey] === 1 ? 'selected' : ''}" 
-                     onclick="submitVote(${c.id}, 1, ${hasVoted})">
-                    <div class="progress-bar" style="width: ${hasVoted ? p2 : 0}%"></div>
-                    <div class="option-content">
-                        <span>${escapeHTML(c.options[1])}</span>
-                        ${hasVoted ? `<span>${p2}% (${c.votes[1]})</span>` : ''}
-                    </div>
-                </div>
-
-                <div style="margin-top:15px; font-size:11px; color:#555;">بواسطة: @${c.creator}</div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    function submitVote(caseId, optionIdx, alreadyVoted) {
-        if(alreadyVoted) return showToast("⚠️ لقد قمت بالتصويت بالفعل");
-        
-        const c = cases.find(item => item.id === caseId);
-        if(c.creator === currentUser.username) return showToast("🚫 لا يمكنك التصويت لقضيتك");
-
-        c.votes[optionIdx]++;
-        userVotes[`${currentUser.uid}_${caseId}`] = optionIdx;
-        
-        saveData();
-        renderCases();
-        updateUIState();
-        showToast("✅ تم تسجيل صوتك");
-    }
-
-    // --- مساعدات (Helpers) ---
-    function showPage(pageId) {
-        document.getElementById("casesPage").classList.add("hidden");
-        document.getElementById("createPage").classList.add("hidden");
-        document.getElementById(pageId).classList.remove("hidden");
-        if(pageId === 'casesPage') renderCases();
-    }
-
-    function updateUIState() {
-        if(!currentUser) return;
-        const myVotes = Object.keys(userVotes).filter(k => k.startsWith(currentUser.uid)).length;
-        const myCases = cases.filter(c => c.creator === currentUser.username).length;
-        document.getElementById("voteCount").innerText = myVotes;
-        document.getElementById("caseCount").innerText = myCases;
-    }
-
-    function updateStatus(msg, type) {
-        const s = document.getElementById("status");
-        s.innerText = msg;
-        if(type === "success") s.style.color = "var(--success)";
-        if(type === "error") s.style.color = "var(--error)";
-    }
-
-    function saveData() {
-        localStorage.setItem("pi_jury_data", JSON.stringify(cases));
-        localStorage.setItem("pi_jury_votes", JSON.stringify(userVotes));
-    }
-
-    function showToast(msg) {
-        const t = document.getElementById("toast");
-        t.innerText = msg;
-        t.style.display = "block";
-        setTimeout(() => t.style.display = "none", 3000);
-    }
-
-    function onIncompletePayment(payment) { console.log("Incomplete:", payment); }
-
-    function escapeHTML(str) {
-        const p = document.createElement('p');
-        p.textContent = str;
-        return p.innerHTML;
-    }
-</script>
-
+        async function initPi() {
+            try {
+                await Pi.init({ version: "2.0", sandbox: true });
+                const auth = await Pi.authenticate(['username', 'payments']);
+                document.getElementById('user-name').innerText = "@" + auth.user.username;
+                document.getElementById('user-uid').innerText = "UID: " + auth.user.uid;
+            } catch (err) { console.error(err); }
+        }
+        initPi();
+        function createNewCase() { alert(translations[currentLang].payment_msg); }
+    </script>
 </body>
 </html>
+
+    
